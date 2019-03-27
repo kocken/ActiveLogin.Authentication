@@ -20,13 +20,21 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Certificates\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Update="Areas\BankIdAuthentication\Views\BankId\_Login.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Certificates\BankIdRootCertificate-Prod.crt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Certificates\BankIdRootCertificate-Test.crt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Certificates\FPTestcert2_20150818_102329.pfx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
