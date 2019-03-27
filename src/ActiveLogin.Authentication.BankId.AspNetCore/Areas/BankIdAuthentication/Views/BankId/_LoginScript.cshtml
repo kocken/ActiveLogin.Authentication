@@ -1,8 +1,14 @@
 ﻿@model ActiveLogin.Authentication.BankId.AspNetCore.Areas.BankIdAuthentication.Models.BankIdLoginViewModel
 
+@* The two scripts below adds fetch and promise support for Internet Explorer support *@
+
+<script src=https://cdn.jsdelivr.net/npm/promise-polyfill@8.1/dist/polyfill.min.js></script>
+<script src=https://cdn.jsdelivr.net/npm/whatwg-fetch@3.0/dist/fetch.umd.min.js></script>
+
 <script>
     (function (options) {
         // Pre check
+
         var statusElement = document.querySelector('#bankIdLoginStatus');
         var statusSpinnerElement = statusElement.querySelector('.status-spinner');
         var statusMessageElement = statusElement.querySelector('.status-message');

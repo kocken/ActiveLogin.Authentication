@@ -11,6 +11,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Azure.KeyVault;
 using System;
+using System.Globalization;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Mvc.Razor;
+using System.Collections.Generic;
 
 namespace Standalone.MvcSample
 {
@@ -45,18 +49,15 @@ namespace Standalone.MvcSample
                     {
                         builder.UseSimulatedEnvironment();
                     }
-                    else if (Configuration.GetValue("ActiveLogin:BankId:UseTestEnvironment", false))
-                    {
-                        builder.UseTestEnvironment();
-                    }
                     else
                     {
-                        builder.UseProductionEnvironment();
-                    }
+                        if (Configuration.GetValue("ActiveLogin:BankId:UseTestEnvironment", false))
+                            builder.UseTestEnvironment();
+                        else
+                            builder.UseProductionEnvironment();
 
-                    if (!Configuration.GetValue("ActiveLogin:BankId:UseSimulatedEnvironment", false))
-                    {
                         builder.UseRootCaCertificate(Path.Combine(_environment.ContentRootPath, Configuration.GetValue<string>("ActiveLogin:BankId:CaCertificate:FilePath")));
+
                         if (Configuration.GetValue("ActiveLogin:BankId:ClientCertificate:UseAzureKeyVault", false))
                             builder.UseClientCertificateFromAzureKeyVault(Configuration.GetSection("ActiveLogin:BankId:ClientCertificate:AzureKeyVault"));
                         else
@@ -64,16 +65,42 @@ namespace Standalone.MvcSample
                     }
                 });
 
+            var supportedCultures = new[]
+            {
+                new CultureInfo("en-US"),
+                new CultureInfo("en"),
+                new CultureInfo("sv-SE"),
+                new CultureInfo("sv")
+            };
+
+            services.Configure<RequestLocalizationOptions>(options =>
+            {
+                options.DefaultRequestCulture = new RequestCulture("sv");
+                options.SupportedCultures = supportedCultures;
+                options.SupportedUICultures = supportedCultures;
+                options.RequestCultureProviders = new List<IRequestCultureProvider>
+                {
+                    new QueryStringRequestCultureProvider(),
+                    new CookieRequestCultureProvider()
+                };
+            });
+
             services.AddMvc(config =>
             {
                 config.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
             })
-            .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
+            .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
+            .AddDataAnnotationsLocalization();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             app.UseDeveloperExceptionPage();
+
+            app.UseRequestLocalization();
+
+            app.UseStaticFiles();
 
             app.UseAuthentication();
 
